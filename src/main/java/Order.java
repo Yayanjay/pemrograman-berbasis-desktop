@@ -117,16 +117,38 @@ public class Order {
     }
 
     private double calculateBogoDiscount(Discount discount) {
+        double discountAmount = 0;
+        int claimedItems = 0;
+
         for (int i = 0; i < items.size(); i++) {
             MenuItem item = items.get(i);
             int quantity = quantities.get(i);
 
-            if (item.getCategory().equals(discount.getTargetCategory()) && quantity >= 2) {
-                return (quantity / 2) * item.getPrice();
+            if (isBogoTarget(item, discount) && quantity >= 2) {
+                int freeQuantity = quantity / 2;
+
+                if (discount.getMaxClaim() > 0) {
+                    int remainingClaims = discount.getMaxClaim() - claimedItems;
+                    if (remainingClaims <= 0) {
+                        return discountAmount;
+                    }
+                    freeQuantity = Math.min(freeQuantity, remainingClaims);
+                }
+
+                discountAmount += freeQuantity * item.getPrice();
+                claimedItems += freeQuantity;
             }
         }
 
-        return 0;
+        return discountAmount;
+    }
+
+    private boolean isBogoTarget(MenuItem item, Discount discount) {
+        if (!discount.getTargetItemName().isEmpty()) {
+            return item.getName().equalsIgnoreCase(discount.getTargetItemName());
+        }
+
+        return item.getCategory().equals(discount.getTargetCategory());
     }
 
     private double calculateItemOnlyDiscount(Discount discount) {

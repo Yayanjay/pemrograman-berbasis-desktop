@@ -4,15 +4,17 @@ public class Discount extends MenuItem {
     private double minimumSubtotal;
     private String targetCategory;
     private String targetItemName;
+    private int maxClaim;
 
     public Discount(String name, String discountType, double discountPercentage, double minimumSubtotal,
-                    String targetCategory, String targetItemName) {
+                    String targetCategory, String targetItemName, int maxClaim) {
         super(name, 0, "Discount");
         this.discountType = discountType;
         this.discountPercentage = discountPercentage;
         this.minimumSubtotal = minimumSubtotal;
         this.targetCategory = targetCategory;
         this.targetItemName = targetItemName;
+        this.maxClaim = maxClaim;
     }
 
     public String getDiscountType() {
@@ -35,6 +37,10 @@ public class Discount extends MenuItem {
         return targetItemName;
     }
 
+    public int getMaxClaim() {
+        return maxClaim;
+    }
+
     @Override
     public String displayMenu() {
         if (discountType.equals("PERCENTAGE")) {
@@ -43,8 +49,10 @@ public class Discount extends MenuItem {
         }
 
         if (discountType.equals("BOGO")) {
-            return String.format("%-20s Buy 1 Get 1 for %s, min subtotal Rp %,.0f",
-                    getName(), targetCategory, minimumSubtotal);
+            String target = targetItemName.isEmpty() ? targetCategory : targetItemName;
+            String claimText = maxClaim == 0 ? "unlimited claims" : "max " + maxClaim + " claims";
+            return String.format("%-20s Buy 1 Get 1 for %s, min subtotal Rp %,.0f, %s",
+                    getName(), target, minimumSubtotal, claimText);
         }
 
         if (discountType.equals("ITEM_ONLY")) {
@@ -58,6 +66,7 @@ public class Discount extends MenuItem {
     @Override
     public String toFileString() {
         return "DISCOUNT|" + getName() + "|" + getPrice() + "|" + discountType + "|"
-                + discountPercentage + "|" + minimumSubtotal + "|" + targetCategory + "|" + targetItemName;
+                + discountPercentage + "|" + minimumSubtotal + "|" + targetCategory + "|" + targetItemName
+                + "|" + maxClaim;
     }
 }

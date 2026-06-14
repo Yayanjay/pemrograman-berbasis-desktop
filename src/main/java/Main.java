@@ -103,17 +103,31 @@ public class Main {
         double minimumSubtotal = readNonNegativeDouble("Minimum subtotal: ");
         String targetCategory = "";
         String targetItemName = "";
+        int maxClaim = 0;
 
         if (discountType.equals("PERCENTAGE")) {
             percentage = readPositiveDouble("Discount percentage: ");
         } else if (discountType.equals("BOGO")) {
-            targetCategory = readTargetCategory();
+            int targetMode = readBogoTargetMode();
+
+            if (targetMode == 1) {
+                targetCategory = readTargetCategory();
+            } else {
+                MenuItem targetItem = readTargetMenuItem();
+                targetCategory = targetItem.getCategory();
+                targetItemName = targetItem.getName();
+            }
+
+            maxClaim = readNonNegativeInt("Maximum free item claims (0 for unlimited): ");
         } else if (discountType.equals("ITEM_ONLY")) {
-            targetItemName = readNonEmptyText("Target item name: ");
+            MenuItem targetItem = readTargetMenuItem();
+            targetCategory = targetItem.getCategory();
+            targetItemName = targetItem.getName();
             percentage = readPositiveDouble("Discount percentage: ");
         }
 
-        restaurantMenu.addItem(new Discount(name, discountType, percentage, minimumSubtotal, targetCategory, targetItemName));
+        restaurantMenu.addItem(new Discount(name, discountType, percentage, minimumSubtotal,
+                targetCategory, targetItemName, maxClaim));
         System.out.println("Discount added successfully.");
     }
 
@@ -234,6 +248,20 @@ public class Main {
         return value;
     }
 
+    static int readNonNegativeInt(String prompt) {
+        int value;
+
+        do {
+            value = readInt(prompt);
+
+            if (value < 0) {
+                System.out.println("Value cannot be negative.");
+            }
+        } while (value < 0);
+
+        return value;
+    }
+
     static int readInt(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -310,6 +338,41 @@ public class Main {
             }
 
             System.out.println("Invalid discount type. Please choose again.");
+        }
+    }
+
+    static int readBogoTargetMode() {
+        while (true) {
+            System.out.println("BOGO target:");
+            System.out.println("1. Category");
+            System.out.println("2. Specific Item");
+
+            int choice = readInt("Choose BOGO target: ");
+
+            if (choice == 1 || choice == 2) {
+                return choice;
+            }
+
+            System.out.println("Invalid target. Please choose again.");
+        }
+    }
+
+    static MenuItem readTargetMenuItem() {
+        while (true) {
+            restaurantMenu.displayMenu();
+            int itemNumber = readInt("Target menu number: ");
+
+            try {
+                MenuItem item = restaurantMenu.getItemByNumber(itemNumber);
+
+                if (item instanceof Discount) {
+                    System.out.println("Discount items cannot be selected as a discount target.");
+                } else {
+                    return item;
+                }
+            } catch (MenuItemNotFoundException exception) {
+                System.out.println(exception.getMessage());
+            }
         }
     }
 

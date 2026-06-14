@@ -129,7 +129,9 @@ public class RestaurantMenu {
             double minimumSubtotal = Double.parseDouble(parts[5]);
             String targetCategory = parts[6];
             String targetItemName = parts[7];
-            return new Discount(name, discountType, percentage, minimumSubtotal, targetCategory, targetItemName);
+            int maxClaim = parts.length >= 9 ? Integer.parseInt(parts[8]) : 0;
+            return new Discount(name, discountType, percentage, minimumSubtotal,
+                    targetCategory, targetItemName, maxClaim);
         }
 
         throw new IOException("Unknown menu item type: " + type);
