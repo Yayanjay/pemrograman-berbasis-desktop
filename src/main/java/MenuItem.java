@@ -1,9 +1,9 @@
-public class Menu {
+public abstract class MenuItem {
     private String name;
-    private int price;
+    private double price;
     private String category;
 
-    public Menu(String name, int price, String category) {
+    public MenuItem(String name, double price, String category) {
         this.name = name;
         this.price = price;
         this.category = category;
@@ -13,11 +13,15 @@ public class Menu {
         return name;
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 
     public String getCategory() {
         return category;
     }
+
+    public abstract String displayMenu();
+
+    public abstract String toFileString();
 }
